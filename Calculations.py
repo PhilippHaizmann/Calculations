@@ -61,5 +61,10 @@ def debey_semiconductor(temperature, electron_density_power, epsilon_r):
     lambda_D = math.sqrt((epsilon * BOLTZMANN_CONSTANT * temperature) / (ELEMENTARY_CHARGE**2 * electron_density))
     return lambda_D
 
+#Calculations related to beamline/experimental resolutions
+def resolution(E_BD, E_Det):
+    Delta_E_total = math.sqrt(E_BD**2 + E_Det**2)
+    return Delta_E_total
+
 # Uncomment the below line to test the function
-print(fmp_seah_S1(1, 2, 42, 16, 160.07, 5.06, 1.23, 1252.1))
+#print(fmp_seah_S1(1, 2, 42, 16, 160.07, 5.06, 1.23, 1252.1))
