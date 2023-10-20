@@ -3,8 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Constants
-ELECTRON_MASS = 5.68563e-12  # in eVm^-1s^-1
+ELECTRON_MASS_eV = 5.68563e-12  # in eVm^-1s^-1
+ELECTRON_MASS_kg = 9.1093837015e-31
 REDUCED_PLANC = 6.5821995e-16
+PLANCK_CONSTANT = 6.62607015e-34
 BOLTZMANN_CONSTANT = 1.38064825e-23
 ELEMENTARY_CHARGE = 1.602176634e-19
 VACUUM_PERMITTIVITY = 8.854187817e-12
@@ -42,7 +44,8 @@ def fmp_seah(M, rho, N, E):
 def fmp_seah_S1(g, h, Z_g, Z_h, M, rho, Eg, E):
     a = (M * 1e21 / (rho * (g + h) * AVOGADRO_NUMBER))**(1/3)
     Z = (g * Z_g + h * Z_h) / (g + h)
-    return (4 + 0.44 * Z**0.5 + 0.104 * E**0.872) * a**1.7 / (Z**0.3 * (1 - 0.02 * Eg))
+    l = (4 + 0.44 * Z**0.5 + 0.104 * E**0.872) * a**1.7 / (Z**0.3 * (1 - 0.02 * Eg))
+    return l
 
 def tpp_2m(N_v, rho, M, E_g, E):
     U = N_v * rho / M
@@ -52,7 +55,8 @@ def tpp_2m(N_v, rho, M, E_g, E):
     C = 1.97 - 0.91 * U
     D = 53.4 - 20.8 * U
     l = E / (E_p**2 * (beta * math.log(gamma * E) - C / E + D / E**2))
-    return l * 0.1
+    l_nm = l * 0.1
+    return l_nm
 
 # Calculations related to semiconductors
 def debey_semiconductor(temperature, electron_density_power, epsilon_r):
@@ -66,5 +70,16 @@ def resolution(E_BD, E_Det):
     Delta_E_total = math.sqrt(E_BD**2 + E_Det**2)
     return Delta_E_total
 
+#Charge carrier concentration according to https://link.springer.com/article/10.1007/s41127-023-00062-6
+def calc_n0(Ec, T, m_red_e):
+    Nc = (4 * math.pi * m_red_e * ELECTRON_MASS_kg * BOLTZMANN_CONSTANT * T) / (PLANCK_CONSTANT ** 2)
+    n_0 = Nc * math.exp(-(Ec) / ((BOLTZMANN_CONSTANT*T)/ELEMENTARY_CHARGE))
+    return n_0, Nc
+def calc_p0(Ev,T,m_red_h):
+    Np = (4 * math.pi * m_red_h * ELECTRON_MASS_kg * BOLTZMANN_CONSTANT * T) / (PLANCK_CONSTANT ** 2)
+    p_0 = Np * math.exp(-(-Ev) / ((BOLTZMANN_CONSTANT*T)/ELEMENTARY_CHARGE))
+    return p_0 , Np
 # Uncomment the below line to test the function
-#print(fmp_seah_S1(1, 2, 42, 16, 160.07, 5.06, 1.23, 1252.1))
+#print(resolution(22,65.63))
+print(calc_n0(0.57,293.15,0.541))
+print(calc_p0(-0.66,293.15,0.809))
